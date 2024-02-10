@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,16 +20,16 @@ import static org.springframework.data.mongodb.core.aggregation.SelectionOperato
 public class ReviewService {
 
     @Autowired
-    private ReviewRepository reviewRepository;
+    private ReviewRepository repository;
 
     @Autowired
     private MongoTemplate mongoTemplate;
 
 
     public Review createReview(String reviewBody, String imdbId){
-        Review review = reviewRepository.insert(new Review(reviewBody));
+        Review review = repository.insert(new Review(reviewBody, LocalDateTime.now(), LocalDateTime.now()));
 
-        //
+
         mongoTemplate.update(Movie.class)
                 .matching(Criteria.where("imdbId").is(imdbId))
                 .apply(new Update().push("reviewIds").value(review))
